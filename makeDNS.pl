@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright (c) 1999 Ross A. Hamilton
+# Copyright (c) 1999, 2015 Ross A. Hamilton <ross@rah.org>
 
 # User configuration block
 
@@ -10,7 +10,7 @@ my $mailaddr="hostmaster.rah.org";	# e-mail address for SOA
 
 # Test Directories
 my $dir="./test/named";			# Output directory
-my $hostfile="./test/hosts";		# Hosts file to source
+my $hostfile="./test/hosts";	# Hosts file to source
 
 # Prod Directories
 #my $dir="/var/named";			# Output directory
@@ -22,7 +22,7 @@ use strict;
 use Getopt::Std;
 
 # Globals
-my ($snum, %revaddr, %haddr);
+my ($snum, %revaddr, %haddr, %cnamelist);
 
 sub print_header {
 
@@ -87,9 +87,9 @@ sub handle_cnames {
 
 	my ($priname, $othernames) = @_;
 
-	@cnames = split "\\s+", $othernames;
+	my @cnames = split "\\s+", $othernames;
 
-	foreach $cname (@cnames) {
+	foreach my $cname (@cnames) {
 		if (!($cname =~ /\./)) {
 			$cnamelist{$cname} = $priname;
 		} 
@@ -125,7 +125,7 @@ sub output_rev {
 	print_header;
 	include_header ("reverse");
 
-	foreach $a4 (sort keys %{$revaddr{$a1}{$a2}{$a3}}) {
+	foreach my $a4 (sort keys %{$revaddr{$a1}{$a2}{$a3}}) {
 		print DBFILE "$a4\tIN\tPTR\t";
 		print DBFILE "$revaddr{$a1}{$a2}{$a3}{$a4}";
 		print DBFILE "\n";
@@ -145,17 +145,17 @@ sub output_zone {
 
 	# Print A records
 	print DBFILE ";;\n;; A records\n;;\n";
-	foreach $name (sort keys %haddr) {
+	foreach my $name (sort keys %haddr) {
 		print DBFILE $name;
-		foreach $addr (@{$haddr{$name}}) {
+		foreach my $addr (@{$haddr{$name}}) {
 			print DBFILE "\tIN\tA\t$addr\n";
 		}
 	}
 
 	# Print CNAMES
 	print DBFILE ";;\n;; CNAME records\n;;\n";
-	foreach $name (sort keys %cnamelist) {
-		print DBFILE "$name\t\IN\t\CNAME\t$cnamelist{$name}\n";
+	foreach my $name (sort keys %cnamelist) {
+		print DBFILE "$name\tIN\tCNAME\t$cnamelist{$name}\n";
 	}
 
 	close DBFILE;
@@ -168,10 +168,10 @@ open HOSTS, "<$hostfile" || die "can't open host file";
 # Read in the hosts file
 while (<HOSTS>) {
 
-	chop;
-	next if m/^(\#|\D)/;
+	chomp;
+	next if m/^(\#|\D|$)/;
 
-	my ($validpart, $guff) = split "#";
+	my ($validpart, $comment) = split "#";
 	my ($ip, $names) = ($validpart =~ m/(\S+)\s+(.*)/);
 	my @ips = split ",", $ip;
 
