@@ -1,0 +1,7 @@
+127.0.0.1       localhost
+
+192.168.0.1     vrrp-gw webproxy
+192.168.0.2     gateway1
+192.168.0.3     gateway2
+192.168.0.253   lanserv2 dns2 ntp2
+192.168.0.254   lanserv1 dns1 ntp1

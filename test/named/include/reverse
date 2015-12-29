@@ -1,0 +1,5 @@
+;;
+;; Included from include/reverse
+;;
+;; Add any zone-wide or static records unsupported by makeDNS.pl here
+;;
